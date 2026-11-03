@@ -79,6 +79,9 @@ struct StreamFormat {
 
     // The one genuinely dynamic string. ~600 bytes, time-limited, per-request.
     std::string url;
+    std::string format_id, content_id, language, format_note, source_client, user_agent, protocol="https", manifest_content;
+    struct Fragment {std::string url,range;double duration=0;};
+    std::vector<Fragment> fragments;
 
     // All views: static table, or the owning VideoInfo's arena.
     std::string_view mime_type;
@@ -160,7 +163,7 @@ struct VideoInfo {
     // the one fallback that still plays a whole VOD when the resolving
     // client's progressive URLs are byte-capped. mpv and ffmpeg both read HLS
     // natively, so this is handed over as-is -- never fetched by this project.
-    std::string hls_url;
+    std::string hls_url, dash_url;
     std::string url;
     std::string category;
     std::vector<StreamFormat> formats;
@@ -182,6 +185,7 @@ struct VideoInfo {
     // Shared so VideoInfo stays copyable and the views stay valid across
     // copies (cache hand-out, prefetch results, etc).
     std::shared_ptr<StrArena> arena;
+    std::vector<std::shared_ptr<StrArena>> backing_arenas;
 
     StrArena& ensure_arena() {
         if (!arena) arena = std::make_shared<StrArena>();

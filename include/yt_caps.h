@@ -28,6 +28,7 @@
 #include <string_view>
 
 #include "yt_cache.h"
+#include "we_platform.h"
 
 namespace ytfast {
 
@@ -101,17 +102,8 @@ struct Caps {
 
 namespace detail {
 
-inline std::string run_capture(const char* cmd) {
-    std::string out;
-    FILE* p = ::popen(cmd, "r");
-    if (!p) return out;
-    char buf[4096];
-    while (std::fgets(buf, sizeof buf, p)) {
-        out += buf;
-        if (out.size() > (1u << 20)) break;   // runaway output
-    }
-    ::pclose(p);
-    return out;
+inline std::string run_capture(const char* command) {
+    try {auto option=std::string(command).find("--vd=help")!=std::string::npos?"--vd=help":"--hwdec=help";return ytwe::process({"mpv",option},nullptr,true,5000).output;}catch(...){return {};}
 }
 
 inline bool mentions(const std::string& hay, const char* needle) {

@@ -12,3 +12,14 @@ test/test_sqlite
 
 # OS cruft
 .DS_Store
+
+/build/
+test/test_youtube
+*.info.json
+*.comments.jsonl
+
+/build-win/
+/bin/
+/dist/
+/build-*/
+__pycache__/

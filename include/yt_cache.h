@@ -26,7 +26,13 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifdef _WIN32
+#include <direct.h>
+#include <process.h>
+#define getpid _getpid
+#else
 #include <unistd.h>
+#endif
 
 namespace ytfast {
 
@@ -76,16 +82,16 @@ public:
         if (!f) return false;
         const bool wrote = std::fwrite(value.data(), 1, value.size(), f) == value.size();
         std::fclose(f);
-        if (!wrote) { ::unlink(tmp.c_str()); return false; }
+        if (!wrote) { std::remove(tmp.c_str()); return false; }
 
         // Atomic on POSIX: readers see either the old file or the new one.
-        if (::rename(tmp.c_str(), path.c_str()) != 0) { ::unlink(tmp.c_str()); return false; }
+        if (::rename(tmp.c_str(), path.c_str()) != 0) { std::remove(tmp.c_str()); return false; }
         return true;
     }
 
     static void drop(const std::string& key) {
         if (!enabled()) return;
-        ::unlink((dir() + "/" + sanitize(key)).c_str());
+        std::remove((dir() + "/" + sanitize(key)).c_str());
     }
 
 private:
@@ -104,9 +110,17 @@ private:
         // harmless EEXIST.
         for (size_t i = 1; i < d.size(); ++i) {
             if (d[i] != '/') continue;
+            #ifdef _WIN32
+            ::_mkdir(d.substr(0, i).c_str());
+#else
             ::mkdir(d.substr(0, i).c_str(), 0700);
+#endif
         }
+        #ifdef _WIN32
+        ::_mkdir(d.c_str());
+#else
         ::mkdir(d.c_str(), 0700);
+#endif
     }
 
     // Keys come from us, not from user input, but a key containing a slash
