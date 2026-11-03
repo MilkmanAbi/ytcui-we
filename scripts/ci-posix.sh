@@ -13,5 +13,10 @@ if ! command -v "$python_bin" >/dev/null 2>&1; then
 fi
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DYTWE_WERROR=ON "-DPython3_EXECUTABLE=$(command -v "$python_bin")"
 cmake --build build --parallel 2
-ctest --test-dir build --output-on-failure
+if ! ctest --test-dir build --output-on-failure; then
+    if command -v lldb >/dev/null 2>&1; then
+        lldb --batch -o run -o bt -- build/test_yj "$PWD/test/fixtures"
+    fi
+    exit 1
+fi
 "$python_bin" scripts/package.py --name "ytcui-we-$platform-x86_64"

@@ -27,6 +27,8 @@ if(APPLE)
   target_compile_definitions(ytwe_dependencies INTERFACE YTFAST_MACOS)
 elseif(CMAKE_SYSTEM_NAME MATCHES "FreeBSD|OpenBSD|NetBSD")
   target_compile_definitions(ytwe_dependencies INTERFACE YTFAST_BSD)
+  # Keep package-manager libraries discoverable after CMake strips build RPATH.
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
 add_executable(ytcui-we cli/ytcui-we.cpp)
 target_link_libraries(ytcui-we PRIVATE ytwe_dependencies)

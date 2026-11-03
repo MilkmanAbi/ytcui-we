@@ -19,7 +19,7 @@ jobs:
         shell: bash
         run: |
           test "$GITHUB_REF_TYPE" = tag
-          test "$GITHUB_REF_NAME" = "v$(cat VERSION | tr -d '\r\n')"
+          test "$GITHUB_REF_NAME" = "v$(tr -d '\r\n' < VERSION)"
       - uses: actions/download-artifact@v8
         with:
           pattern: package-*

@@ -108,7 +108,7 @@ struct Val {
     std::string_view raw() const {
         if (!is_str()) return {};
         const char* end = skip_string(p, e);
-        if (end <= p + 1) return {};
+        if (end - p < 2 || end[-1] != '"') return {};
         return std::string_view(p + 1, (size_t)(end - p - 2));
     }
 
@@ -159,6 +159,7 @@ inline void each_member(Val obj, F&& fn) {
     while (p < obj.e && *p != '}') {
         if (*p != '"') { p = skip_ws(p + 1, obj.e); continue; }
         const char* kend = skip_string(p, obj.e);
+        if (kend - p < 2 || kend[-1] != '"') return;
         std::string_view key(p + 1, (size_t)(kend - p - 2));
         p = skip_ws(kend, obj.e);
         if (p < obj.e && *p == ':') p = skip_ws(p + 1, obj.e);
