@@ -76,8 +76,8 @@ client. Each implementation received one warm-up, then three timed runs.
 
 That is about 5.0x for this warm-cache workload on this machine. The implementations
 perform different amounts of metadata work, and network timing varied; it is not
-a general claim for every video or download. Raw samples are saved with the task
-outputs. The native implementation caches preprocessed JavaScript between runs.
+a general claim for every video or download. The native implementation caches
+preprocessed JavaScript between runs.
 
 ## Differences from the entire yt-dlp application
 
@@ -95,5 +95,6 @@ extraction to either Python or yt-dlp.
 
 EJS provenance/hashes are in `vendor/ejs/PROVENANCE.md`; pugixml source provenance
 and its MIT license are in `vendor/pugixml`. The original project MIT license and
-Git history remain intact. Work is on local `cpp-youtube-port`; the standalone
-client is on `standalone-client`. Changes remain uncommitted; nothing was pushed.
+Git history remain intact. The maintained native project is published at
+[MilkmanAbi/ytcui-we](https://github.com/MilkmanAbi/ytcui-we).
+Automated build, runtime and package checks are described in the README.
