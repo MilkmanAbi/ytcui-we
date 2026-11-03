@@ -9,12 +9,13 @@ exe = Path(sys.argv[1]).resolve()
 with tempfile.TemporaryDirectory(prefix='ytcui smoke space ') as temporary:
     env = dict(os.environ)
     env['PATH'] = str(exe.parent) + os.pathsep + env.get('PATH', '')
-    path_command = ([str(Path(os.environ['SystemRoot']) / 'System32/cmd.exe'), '/d', '/c', exe.name]
-                    if os.name == 'nt' else [exe.name])
-    for command in ([str(exe)], path_command):
+    # Windows CreateProcess searches the parent's PATH, rather than the env
+    # argument supplied for the child. Set both in this short-lived test process.
+    os.environ['PATH'] = env['PATH']
+    for command in (str(exe), exe.name):
         for args, valid in [(['--version'], True), (['--help'], True),
                             (['--this-option-does-not-exist'], False)]:
-            result = subprocess.run([*command, *args], cwd=temporary, env=env,
+            result = subprocess.run([command, *args], cwd=temporary, env=env,
                                     capture_output=True, timeout=20)
             assert (result.returncode == 0) == valid, (args, result.stderr)
             if valid:
