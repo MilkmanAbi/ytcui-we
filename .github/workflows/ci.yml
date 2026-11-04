@@ -5,10 +5,16 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      source_ref:
+        type: string
+        required: false
+        default: ''
   schedule:
     - cron: '17 3 * * 1'
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,6 +25,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - name: Validate workflows and POSIX script
         env:
           GH_TOKEN: ${{ github.token }}
@@ -47,6 +55,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -91,6 +101,8 @@ jobs:
           - {os: macos-26-intel, package: ''}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -133,6 +145,8 @@ jobs:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -179,6 +193,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version: '24'
@@ -205,6 +221,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libssl-dev zlib1g-dev
       - run: make test JOBS=2
       - run: make install PREFIX="$RUNNER_TEMP/install space" JOBS=2
@@ -216,6 +234,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - name: Build and run with musl
         run: |
           docker run --rm -v "$PWD:/src" -w /src alpine:3.22 sh -euxc '
@@ -243,6 +263,8 @@ jobs:
         os: [freebsd, openbsd, netbsd]
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.ref }}
       - name: FreeBSD
         if: matrix.os == 'freebsd'
         uses: vmactions/freebsd-vm@v1
